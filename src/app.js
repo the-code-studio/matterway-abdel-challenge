@@ -66,6 +66,7 @@ const GetRandomBook = (books) =>
   await typeOnPage(page, process.env.SEARCH_SELECTOR, preferedBook);
   await aClick(page, process.env.BUTTON_SEARCH_SELECTOR);
   await page.waitForNavigation();
+  const linkHandlers = await page.$x("//a[contains(text(), 'Paperback')]");
   linkHandlers.length > 0
     ? await linkHandlers[0].click()
     : () => {
