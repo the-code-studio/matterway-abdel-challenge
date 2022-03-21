@@ -1,6 +1,4 @@
 const puppeteer = require("puppeteer");
-//import UserAgent from "user-agents";
-//const userAgent = new UserAgent();
 require("dotenv").config();
 const resourcePath = "https://www.goodreads.com";
 
@@ -13,7 +11,6 @@ const openNewPage = async (browser) => {
 
 // open new website
 const navigateTo = async (page, url) => {
-  // page.setUserAgent(userAgent.toString());
   return await page.goto(url);
 };
 
@@ -33,13 +30,12 @@ const typeOnPage = async (page, selector, textField) => {
 };
 
 //Extract results from page
-const extractResult = async (page, selector) => {
-  const selectedSelectors = await page.waitForSelector(selector);
-  await page.evaluate((selectedSelectors) => {
-    console.log(Array.from(document.querySelectorAll(resultsSelector)));
-    return true;
-  });
-};
+// const extractResult = async (page, selector) => {
+//   const selectedSelectors = await page.waitForSelector(selector);
+//   await page.evaluate((selectedSelectors) => {
+//     return true;
+//   });
+// };
 
 // sort function
 const sortBooksBy = async (page) => {};
@@ -54,6 +50,10 @@ const memorizePage = async (page, namePage) => {
   return await page.screenshot({ path: `${namePage}` });
 };
 
+// get Random book
+const GetRandomBook = (books) =>
+  books[Math.floor(Math.random() * books.length)];
+
 (async () => {
   const browser = await puppeteer.launch({
     headless: false,
@@ -61,15 +61,17 @@ const memorizePage = async (page, namePage) => {
   });
   const page = await browser.newPage();
   const books = await getListOfBooks(page);
-  await page.on("load", () => {
-    console.log(books);
-  });
+  const preferedBook = await GetRandomBook(books);
+  await page.goto(process.env.AMAZON_URL);
+  await typeOnPage(page, process.env.SEARCH_SELECTOR, preferedBook);
+  await aClick(page, process.env.BUTTON_SEARCH_SELECTOR);
+  await page.waitForNavigation();
+  linkHandlers.length > 0
+    ? await linkHandlers[0].click()
+    : () => {
+        throw new Error("This book Paperback version not found!");
+      };
+  await aClick(page, process.env.ADD_TO_CART_SELECTOR);
 
-  //   const myPage = await openNewPage(browser);
-  //   navigateTo(myPage, process.env.AMAZON_URL);
-  // await page.goto("https://www.amazon.com");
-  // await typeOnPage(page, process.env.SEARCH_SELECTOR, "book test Paperback");
-  // await aClick(page, process.env.BUTTON_SEARCH_SELECTOR);
-  // await extractResult(page, process.env.ITEM_TITLE_LINK_AMAZON);
   // await browser.close();
 })();
